@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { useBook } from '../../context/BookContext';
 import { Info, ImagePlus, UploadCloud, RefreshCw } from 'lucide-react';
 import { GoogleGenAI } from '@google/genai';
-import { getTheme } from '../../lib/themes';
 
 export function CoverView() {
   const { book, updateBookDetails } = useBook();
@@ -20,7 +19,7 @@ export function CoverView() {
   const spineWidthInches = spineWidthMM / 25.4;
 
   const handleRefImagesUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []) as File[];
+    const files = Array.from(e.target.files || []);
     if (files.length > 0) {
       let processed = 0;
       const newImages: string[] = [];
@@ -404,24 +403,10 @@ export function CoverView() {
                  
                  {!book.hideTextOnCover && (
                    <div className="z-10 flex flex-col h-full w-full">
-                     <h1 style={{
-                       fontFamily: getTheme(book.theme).bodyFont === 'times'
-                         ? 'Georgia, "Times New Roman", serif'
-                         : getTheme(book.theme).bodyFont === 'courier'
-                           ? '"Courier New", monospace'
-                           : 'Arial, Helvetica, sans-serif',
-                       textShadow: book.coverImage ? '1px 1px 4px rgba(0,0,0,0.6)' : 'none',
-                     }} className={`text-3xl font-light tracking-[0.1em] mt-12 mb-4 leading-tight uppercase ${book.coverImage ? 'text-white' : 'text-[#1A1A1A]'}`}>
+                     <h1 className={`text-3xl font-light tracking-[0.1em] font-serif mt-12 mb-4 leading-tight uppercase ${book.coverImage ? 'text-white' : 'text-[#1A1A1A] drop-shadow-md'}`}>
                        {book.title || 'TÍTULO DEL LIBRO'}
                      </h1>
-                     <p style={{
-                       fontFamily: getTheme(book.theme).bodyFont === 'times'
-                         ? 'Georgia, "Times New Roman", serif'
-                         : getTheme(book.theme).bodyFont === 'courier'
-                           ? '"Courier New", monospace'
-                           : 'Arial, Helvetica, sans-serif',
-                       textShadow: book.coverImage ? '1px 1px 3px rgba(0,0,0,0.5)' : 'none',
-                     }} className={`tracking-[0.2em] text-[10px] uppercase mt-auto mb-12 ${book.coverImage ? 'text-white/90' : 'text-gray-500'}`}>
+                     <p className={`font-sans tracking-[0.2em] text-[10px] uppercase mt-auto mb-12 ${book.coverImage ? 'text-white/90 drop-shadow-md' : 'text-gray-500'}`}>
                        {book.author || 'NOMBRE DEL AUTOR'}
                      </p>
                    </div>

@@ -1,16 +1,15 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Book, Section } from '../types';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { Book, Section, ThemeType, PaperType, TrimSize } from '../types';
 
 interface BookContextType {
   book: Book;
   updateBookDetails: (details: Partial<Book>) => void;
-  addSection: (type: Section['type'], afterId?: string) => void;
+  addSection: (type: Section['type']) => void;
   updateSection: (id: string, updates: Partial<Section>) => void;
   deleteSection: (id: string) => void;
   reorderSections: (startIndex: number, endIndex: number) => void;
   importSections: (sections: Omit<Section, 'id'>[], replace?: boolean) => void;
   loadBook: (book: Book) => void;
-  lastSaved: Date | null;
 }
 
 const defaultBook: Book = {
@@ -23,44 +22,14 @@ const defaultBook: Book = {
   sections: [
     { id: 's1', type: 'front-matter', pageType: 'title-page', title: 'Página del Título', content: '' },
     { id: 's2', type: 'front-matter', pageType: 'copyright', title: 'Derechos de Autor', content: '', meta: { year: '2024', holder: 'Autor Independiente' } },
-    { id: 's3', type: 'chapter', pageType: 'standard', title: 'Capítulo 1', content: '<p>Era una noche oscura y tormentosa...</p>' },
+    { id: 's3', type: 'chapter', pageType: 'standard', title: 'Capítulo 1', content: 'Era una noche oscura y tormentosa...' },
   ],
 };
-
-const STORAGE_KEY = 'kdpress_book_v2';
-
-function loadFromStorage(): Book | null {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as Book;
-  } catch {
-    return null;
-  }
-}
-
-function saveToStorage(book: Book) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(book));
-  } catch {
-    console.warn('Could not save to localStorage');
-  }
-}
 
 const BookContext = createContext<BookContextType | undefined>(undefined);
 
 export const BookProvider = ({ children }: { children: ReactNode }) => {
-  const [book, setBook] = useState<Book>(() => loadFromStorage() ?? defaultBook);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
-
-  // Auto-save debounced
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      saveToStorage(book);
-      setLastSaved(new Date());
-    }, 800);
-    return () => clearTimeout(timer);
-  }, [book]);
+  const [book, setBook] = useState<Book>(defaultBook);
 
   const updateBookDetails = (details: Partial<Book>) => {
     setBook((prev) => ({ ...prev, ...details }));
@@ -74,6 +43,7 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
       title: type === 'chapter' ? 'Nuevo Capítulo' : type === 'part' ? 'Nueva Parte' : 'Nueva Sección',
       content: '',
     };
+    
     setBook((prev) => {
       if (afterId) {
         const index = prev.sections.findIndex(s => s.id === afterId);
@@ -115,9 +85,9 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
       ...s,
       id: Math.random().toString(36).substring(2, 9)
     }));
-    setBook((prev) => ({
-      ...prev,
-      sections: replace ? freshSections : [...prev.sections, ...freshSections]
+    setBook((prev) => ({ 
+      ...prev, 
+      sections: replace ? freshSections : [...prev.sections, ...freshSections] 
     }));
   };
 
@@ -136,7 +106,6 @@ export const BookProvider = ({ children }: { children: ReactNode }) => {
         reorderSections,
         importSections,
         loadBook,
-        lastSaved,
       }}
     >
       {children}

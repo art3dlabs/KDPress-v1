@@ -1,6 +1,5 @@
-import React, { useRef, useEffect, useCallback } from 'react';
-import { Bold, Italic, Heading1, Heading2, AlignLeft, AlignCenter, AlignRight, List, Undo, Redo } from 'lucide-react';
-import { cn } from '../../lib/utils';
+import React, { useRef, useEffect } from 'react';
+import { Bold, Italic, Heading1, Heading2, AlignLeft, AlignCenter, AlignRight } from 'lucide-react';
 
 interface RichTextEditorProps {
   value: string;
@@ -9,113 +8,61 @@ interface RichTextEditorProps {
 
 export function RichTextEditor({ value, onChange }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
-  const isComposing = useRef(false);
 
-  // Sync content when switching sections (value prop changes)
   useEffect(() => {
-    const el = editorRef.current;
-    if (!el) return;
-    if (el.innerHTML !== value) {
-      el.innerHTML = value || '';
-      // Preserve cursor at end
+    if (editorRef.current && editorRef.current.innerHTML !== value) {
+      editorRef.current.innerHTML = value;
     }
-  }, [value]);
+  }, []); 
 
-  const handleInput = useCallback(() => {
-    if (isComposing.current) return;
+  const handleInput = () => {
     if (editorRef.current) {
       onChange(editorRef.current.innerHTML);
     }
-  }, [onChange]);
-
-  const execCmd = (command: string, val?: string) => {
-    editorRef.current?.focus();
-    document.execCommand(command, false, val);
-    handleInput();
   };
 
-  const wordCount = value.replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
-  const charCount = value.replace(/<[^>]+>/g, '').length;
-
-  const ToolBtn = ({ title, onClick, children, active = false }: {
-    title: string; onClick: () => void; children: React.ReactNode; active?: boolean;
-  }) => (
-    <button
-      onMouseDown={(e) => { e.preventDefault(); onClick(); }}
-      title={title}
-      className={cn(
-        "p-1.5 rounded transition-colors",
-        active ? "bg-[#1A1A1A] text-white" : "text-[#1A1A1A] hover:bg-[#F0EFED]"
-      )}
-    >
-      {children}
-    </button>
-  );
+  const execCommand = (command: string, value: string | undefined = undefined) => {
+    document.execCommand(command, false, value);
+    handleInput();
+    editorRef.current?.focus();
+  };
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Toolbar */}
-      <div className="flex items-center gap-1 px-4 py-2 border-b border-[#E5E4DE] bg-[#FAFAFA] flex-wrap">
-        <ToolBtn title="Título H1" onClick={() => execCmd('formatBlock', 'H1')}>
-          <Heading1 size={15} />
-        </ToolBtn>
-        <ToolBtn title="Título H2" onClick={() => execCmd('formatBlock', 'H2')}>
-          <Heading2 size={15} />
-        </ToolBtn>
-        <div className="w-px h-4 bg-[#E5E4DE] mx-1" />
-        <ToolBtn title="Negrita (Ctrl+B)" onClick={() => execCmd('bold')}>
-          <Bold size={14} />
-        </ToolBtn>
-        <ToolBtn title="Cursiva (Ctrl+I)" onClick={() => execCmd('italic')}>
-          <Italic size={14} />
-        </ToolBtn>
-        <div className="w-px h-4 bg-[#E5E4DE] mx-1" />
-        <ToolBtn title="Lista" onClick={() => execCmd('insertUnorderedList')}>
-          <List size={14} />
-        </ToolBtn>
-        <div className="w-px h-4 bg-[#E5E4DE] mx-1" />
-        <ToolBtn title="Alinear izquierda" onClick={() => execCmd('justifyLeft')}>
-          <AlignLeft size={14} />
-        </ToolBtn>
-        <ToolBtn title="Centrar" onClick={() => execCmd('justifyCenter')}>
-          <AlignCenter size={14} />
-        </ToolBtn>
-        <ToolBtn title="Alinear derecha" onClick={() => execCmd('justifyRight')}>
-          <AlignRight size={14} />
-        </ToolBtn>
-        <div className="w-px h-4 bg-[#E5E4DE] mx-1" />
-        <ToolBtn title="Deshacer (Ctrl+Z)" onClick={() => execCmd('undo')}>
-          <Undo size={14} />
-        </ToolBtn>
-        <ToolBtn title="Rehacer (Ctrl+Y)" onClick={() => execCmd('redo')}>
-          <Redo size={14} />
-        </ToolBtn>
-
-        <div className="ml-auto text-[9px] text-gray-400 font-bold uppercase tracking-widest">
-          {wordCount.toLocaleString()} palabras · {charCount.toLocaleString()} caracteres
+    <div className="flex flex-col h-full bg-white relative pb-8">
+      {/* Floating Toolbar inside editor */}
+      <div className="absolute top-4 right-4 z-20 flex items-center bg-white px-4 py-2 rounded-full shadow-lg border border-[#E5E4DE] gap-4">
+        <div className="flex items-center gap-1 border-r border-[#E5E4DE] pr-4">
+          <button onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', 'H1'); }} className="p-1 hover:bg-[#F0EFED] rounded text-[#1A1A1A] font-bold" title="H1">
+            <Heading1 size={14} />
+          </button>
+          <button onMouseDown={(e) => { e.preventDefault(); execCommand('formatBlock', 'H2'); }} className="p-1 hover:bg-[#F0EFED] rounded text-[#1A1A1A] font-bold" title="H2">
+            <Heading2 size={14} />
+          </button>
+        </div>
+        <div className="flex items-center gap-2 border-r border-[#E5E4DE] pr-4">
+          <button onMouseDown={(e) => { e.preventDefault(); execCommand('bold'); }} className="w-5 h-5 flex items-center justify-center font-bold text-[#1A1A1A] hover:bg-[#F0EFED] rounded" title="B">B</button>
+          <button onMouseDown={(e) => { e.preventDefault(); execCommand('italic'); }} className="w-5 h-5 flex items-center justify-center italic font-serif text-[#1A1A1A] hover:bg-[#F0EFED] rounded" title="I">I</button>
+        </div>
+        <div className="flex items-center gap-1">
+          <button onMouseDown={(e) => { e.preventDefault(); execCommand('justifyLeft'); }} className="p-1 hover:bg-[#F0EFED] rounded text-[#1A1A1A]">
+            <AlignLeft size={14} />
+          </button>
+          <button onMouseDown={(e) => { e.preventDefault(); execCommand('justifyCenter'); }} className="p-1 hover:bg-[#F0EFED] rounded text-[#1A1A1A]">
+            <AlignCenter size={14} />
+          </button>
+           <button onMouseDown={(e) => { e.preventDefault(); execCommand('justifyRight'); }} className="p-1 hover:bg-[#F0EFED] rounded text-[#1A1A1A]">
+            <AlignRight size={14} />
+          </button>
         </div>
       </div>
-
-      {/* Editor canvas */}
-      <div
+      
+      <div 
         ref={editorRef}
         contentEditable
-        suppressContentEditableWarning
         onInput={handleInput}
         onBlur={handleInput}
-        onCompositionStart={() => { isComposing.current = true; }}
-        onCompositionEnd={() => { isComposing.current = false; handleInput(); }}
-        className="flex-1 px-12 py-10 outline-none overflow-y-auto text-[#1A1A1A] text-base leading-relaxed"
-        style={{
-          fontFamily: 'Georgia, "Times New Roman", serif',
-          fontSize: '15px',
-          lineHeight: '1.85',
-          minHeight: '400px',
-          maxWidth: '680px',
-          margin: '0 auto',
-          width: '100%',
-        }}
-        spellCheck
+        className="flex-1 px-8 py-16 outline-none overflow-y-auto prose max-w-none text-[#1A1A1A]"
+        style={{ minHeight: '300px', textIndent: '1.5em' }}
       />
     </div>
   );
