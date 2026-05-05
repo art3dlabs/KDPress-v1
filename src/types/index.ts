@@ -1,5 +1,5 @@
 export type SectionType = 'front-matter' | 'part' | 'chapter' | 'back-matter';
-export type PageType = 'standard' | 'title-page' | 'copyright' | 'dedication' | 'toc' | 'about-author';
+export type PageType = 'standard' | 'title-page' | 'copyright' | 'dedication' | 'toc' | 'about-author' | 'image-page';
 
 export interface Section {
   id: string;
@@ -12,7 +12,17 @@ export interface Section {
 
 export type PaperType = 'cream' | 'white';
 export type TrimSize = '5x8' | '6x9';
-export type ThemeType = 'classic-fiction' | 'non-fiction' | 'workbook' | 'sci-fi' | 'romance' | 'fantasy';
+export type ThemeType =
+  | 'classic-fiction'
+  | 'non-fiction'
+  | 'workbook'
+  | 'sci-fi'
+  | 'romance'
+  | 'fantasy'
+  | 'thriller'
+  | 'academic'
+  | 'poetry'
+  | 'memoir';
 
 export interface Book {
   id: string;
