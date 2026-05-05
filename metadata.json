@@ -1,0 +1,6 @@
+{
+  "name": "KDPress v1",
+  "description": "Una aplicación web estilo SaaS para que autores independientes maquen y exporten sus libros con estándares profesionales para Amazon KDP e IngramSpark.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
